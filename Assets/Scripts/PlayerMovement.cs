@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Player))]
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : Movement
 {
     [SerializeField] private GameObject _dashEffect;
 
@@ -24,19 +25,10 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 _direction;
     private Coroutine _dashCoroutine;
 
-    private void Awake()
-    {
-        Player.OnPlayerCreating += InitializePlayer;
-    }
-
     public void Start()
     {
         _rigid = GetComponent<Rigidbody>();
-    }
-
-    private void InitializePlayer(Player player)
-    {
-        _player = player;
+        _player = GetComponent<Player>();
     }
 
     private void Update()
@@ -61,7 +53,6 @@ public class PlayerMovement : MonoBehaviour
             {
                 _currentDashForce = _initialDashForce;
                 _isDashAvailable = false;
-                //_dashEffect.SetActive(true);
                 _player.TriggerAction(Player.PlayerAction.dash);
                 
                 _dashCoroutine = StartCoroutine(DashDuration());
@@ -74,18 +65,6 @@ public class PlayerMovement : MonoBehaviour
         {
             _player.ChangeState(Player.PlayerState.idle);
         }
-
-        _rigid.velocity = _direction * _speed * _currentDashForce;
-        Rotate();
-    }
-
-    private void Rotate()
-    {
-        if (_direction != Vector3.zero)
-        {
-            Quaternion rotation = Quaternion.LookRotation(_direction, Vector3.up);
-            transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.fixedDeltaTime * _turningSpeed);
-        }
     }
 
     private IEnumerator DashDuration()
@@ -93,7 +72,6 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(_dashDuration);
         _currentDashForce = 1;
         _dashCoroutine = null;
-        //_dashEffect.SetActive(false);
     }
 
     private IEnumerator DashCooldown()

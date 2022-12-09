@@ -39,7 +39,6 @@ public class Player : MonoBehaviour
         if(_playerState != state)
         {
             _playerState = state;
-            Debug.Log(state);
             switch(state)
             {
                 case PlayerState.idle:
